@@ -17,6 +17,7 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+let player, cursors;
 
 function preload () {
     this.load.image('sky', '../assets/sky.png');
@@ -32,12 +33,10 @@ function preload () {
 }
 
 function create () {
-    let platforms, player;
-
     //this.add.image(0, 0, 'sky').setOrigin(0, 0);
     this.add.image(400, 300, 'sky');
 
-    platforms = this.physics.add.staticGroup()
+    const platforms = this.physics.add.staticGroup();
     // ground of the game
     platforms.create(400, 568, 'ground').setScale(2).refreshBody();
     // platforms
@@ -48,6 +47,7 @@ function create () {
     player = this.physics.add.sprite(100, 450, 'dude');
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
+    //player.body.setGravityY(300);
 
     this.anims.create({
         key: 'left',
@@ -68,7 +68,27 @@ function create () {
         frameRate: 10,
         repeat: -1
     });
+
+    this.physics.add.collider(player, platforms);
+
+    cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update () {
+    if (cursors.left.isDown) {
+        player.setVelocityX(-160);
+        player.anims.play('left', true);
+
+    } else if (cursors.right.isDown) {
+        player.setVelocityX(160);
+        player.anims.play('right', true);
+
+    } else {
+        player.setVelocityX(0);
+        player.anims.play('turn');
+    }
+
+    if (cursors.up.isDown && player.body.touching.down) {
+        player.setVelocityY(-330);
+    }
 }
